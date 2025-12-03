@@ -9,7 +9,7 @@ def main():
 
     client = genai.Client(api_key=api_key)
 
-    model_name = "gemini-2.0-flash-lite"  # safe + free tier friendly
+    model_name = "gemini-3-pro-preview"  # safe + free tier friendly
 
     response = client.models.generate_content(
         model=model_name,
