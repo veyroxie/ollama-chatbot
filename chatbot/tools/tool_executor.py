@@ -58,8 +58,8 @@ class Tool:
             param_type = param_info["type"].__name__ if hasattr(param_info["type"], "__name__") else str(param_info["type"])
             param_parts.append(f"{param_name} ({param_type})")
 
-        if param_info["required"]:
-            required_params.append(param_name)
+            if param_info["required"]:
+                required_params.append(param_name)
 
         params_str = ", ".join(param_parts)
         desc = f"{self.name}({params_str}: {self.description})."
@@ -67,6 +67,8 @@ class Tool:
         if required_params:
             desc += f" Required parameters: {', '.join(required_params)}."
 
+        return desc
+    
 
     def execute(self, **kwargs) -> Any:
         """
