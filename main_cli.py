@@ -1,12 +1,14 @@
 from chatbot.nodes.planner_node import PlannerNode
 from chatbot.nodes.tool_runner_node import ToolRunnerNode
 from chatbot.nodes.answer_node import AnswerNode
+from chatbot.nodes.chain_executor_node import ChainExecutorNode
 
 
 def main():
     planner = PlannerNode()                    
     runner = ToolRunnerNode()
-    answerer = AnswerNode()       # create one node instance to handle convo
+    answerer = AnswerNode()   
+    chain_executor = ChainExecutorNode()    # create one node instance to handle convo
 
     conversation_history = []   # track convo history
 
@@ -30,12 +32,15 @@ def main():
         tool_output = None
 
         # Tool execution phase
-        if plan.get("action") == "use_tool":
-            tool_output = runner.process(plan)
-            print("[debug] Tool output:", tool_output)
-
+        if plan.get("action") in ["use_tool", "use_tools"]:
+            # Use ChainExecutorNode for both single and multi-tool execution
+            execution_result = chain_executor.process(plan)
+            print("[debug] Execution result:", execution_result)
+            tool_output = execution_result
+        elif plan.get("action") == "answer_direct":
+            print("[debug] No tools used, proceeding to answer generation.")
         else:
-            print("[debug] No tool used, proceeding to answer generation.")
+            print(f"[debug] Unknown action: {plan.get('action')}")
 
         # Answer generation phase
         final_reply = answerer.process(user_message, tool_output, conversation_history)
