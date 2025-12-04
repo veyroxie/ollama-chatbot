@@ -15,7 +15,7 @@ class AnswerNode(BaseNode):
     - final string answer for the user
     """
 
-    def process(self, user_message: str, tool_output: dict | None = None) -> str:
+    def process(self, user_message: str, tool_output: dict | None = None, conversation_history: list = None) -> str:
         # 1. Prepare a safe representation of tool_output for the prompt
         if tool_output is None:
             tool_block = "No tools were used."
@@ -33,13 +33,28 @@ class AnswerNode(BaseNode):
             "Reply in a concise, friendly way.\n"
         )
 
-        full_prompt = (
-            f"{system_instructions}\n"
-            f"User message:\n{user_message}\n\n"
-            f"Tool output (if any, JSON):\n{tool_block}\n\n"
-            "Now write the final answer for the user:"
-        )
+        # build messages w convo history
+        messages =  []
+
+        # add system instructions
+        messages.append({
+            "role": "system",
+            "content": system_instructions
+        })
+
+        # add convo history if present
+        if conversation_history:
+            # add all previous messages except last user message
+            for msg in conversation_history[:-1]:
+                messages.append(msg)
+
+        # add current user message with tool output
+        user_content = f"User question: {user_message}\n\nTool output (if any):\n{tool_block}\n\nNow write the final answer for the user:"
+        messages.append({
+            "role": "user",
+            "content": user_content
+            })
 
         # 3. Call the LLM to compose the answer
-        answer = call_llm(full_prompt)
+        answer = call_llm(messages=messages)
         return answer.strip()

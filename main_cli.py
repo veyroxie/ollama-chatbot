@@ -8,16 +8,23 @@ def main():
     runner = ToolRunnerNode()
     answerer = AnswerNode()       # create one node instance to handle convo
 
+    conversation_history = []   # track convo history
 
     print("Ollama Chatbot (type 'quit' to exit)")
     while True:
         user_message = input("You: ").strip()
+
+        conversation_history.append({
+            "role": "user",
+            "content": user_message
+        })
+
         if user_message.lower() in {"quit", "exit"}:
             print("Exiting. Goodbye!")
             break
 
         # Planning phase
-        plan = planner.process(user_message)
+        plan = planner.process(user_message, conversation_history)
         print("[debug] Plan:", plan)
 
         tool_output = None
@@ -31,9 +38,15 @@ def main():
             print("[debug] No tool used, proceeding to answer generation.")
 
         # Answer generation phase
-        final_reply = answerer.process(user_message, tool_output)
+        final_reply = answerer.process(user_message, tool_output, conversation_history)
         print("Bot:", final_reply)
         print("-" * 40)
+
+        # Add bot response to conversation history
+        conversation_history.append({
+            "role": "assistant",
+            "content": final_reply
+        })
     
 
 if __name__ == "__main__":

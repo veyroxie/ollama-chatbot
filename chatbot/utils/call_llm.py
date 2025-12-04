@@ -6,9 +6,21 @@ DEFAULT_MODEL = "gemma3:1b"
 
 
 
-def call_llm(prompt: str) -> str:
-    messages = [{"role": "user", "content": prompt}]                                    # chat format for OpenAI / Gemini / Ollama
-    payload = {"model": DEFAULT_MODEL, "messages": messages, "stream": False}           # what Ollama's /api/chat expects
+def call_llm(prompt: str=None, messages: list=None) -> str:
+    # if messages provided directly, use.
+    if messages is not None:
+        final_messages = messages
+
+    # otherwise convert prompt to message
+    elif prompt is not None:
+        final_messages = [{
+            "role": "user",
+            "content": prompt
+        }]
+    else:
+        raise ValueError("Either prompt or messages must be provided to call_llm.")
+    
+    payload = {"model": DEFAULT_MODEL, "messages": final_messages, "stream": False}           # what Ollama's /api/chat expects
 
     try:
         response = requests.post(OLLAMA_URL, json=payload, timeout=60)                  # where code calls Ollama API

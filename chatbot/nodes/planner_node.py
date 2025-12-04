@@ -22,7 +22,7 @@ class PlannerNode(BaseNode):
     - {"action": "use_tool", "tool": "get_time", "args": {}}
     """
 
-    def process(self, user_message: str) -> dict:
+    def process(self, user_message: str, conversation_history: list) -> dict:
         
         # 1. Build a description of tools for the prompt
         tools_lines = []
@@ -52,13 +52,28 @@ class PlannerNode(BaseNode):
             "- if the user asks about weather, use tool 'fake_weather' with args{\"location\":\"<city>\"}.\n"
         )
 
-        full_prompt = (
-            f"{system_instructions}\n"
-            f"User Message: {user_message}\n"
-            "Planner JSON Response:"
-        )
+        # build messages with convo history
+        messages = []
 
-        raw = call_llm(full_prompt).strip()
+        # add system instructions
+        messages.append({
+            "role": "system",
+            "content": system_instructions
+        })
+
+        # add convo history if present
+        if conversation_history:
+            # add all previous messages except last user message
+            for msg in conversation_history[:-1]:
+                messages.append(msg)
+
+        # add current user message
+        messages.append({
+            "role": "user",
+            "content": f"{user_message}\n\nPlanner JSON Response:"
+        })
+
+        raw = call_llm(messages = messages).strip()
         print("[DEBUG planner ra]:", repr(raw))
 
         # 3. Parse LLM output as JSON
