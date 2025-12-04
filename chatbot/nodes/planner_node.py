@@ -11,7 +11,7 @@ AVAILABLE_TOOLS = {
 
 class PlannerNode(BaseNode):
     """
-    Planner Node: LLM call #1
+    Node that creates a plan for handling user messages with tools or without
 
     Given a user message, decide whether to:
     - answer directly
