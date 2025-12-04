@@ -34,22 +34,28 @@ class PlannerNode(BaseNode):
         # 2. System-style instructions for planner
         system_instructions = (
             "You are a planning assistant for a chatbot.\n"
-            "Your job is NOT to answer the user directly, but to decide whether to:\n"
+            "Your job is to decide what tools to use to answer the user\n"
+            f"Available tools:\n{tools_block}\n"
             "\n"
-            "Tools you can choose from:\n"
-            f"{tools_block}\n"
+            "You must respond with a JSON object. Examples:\n"
             "\n"
-            "You must respond ONLY with a single JSON object on one line.\n"
-            "Do NOT include any explanation, comments, or markdown.\n"
-            "Example of a valid response:\n"
+            "For simple questions (no tools needed):\n"
+            '{"action": "answer_direct"}\n'
+            "\n"
+            "For questions needing ONE tool:\n"
             '{"action": "use_tool", "tool": "get_time", "args": {}}\n'
-            '{"action"} can be either "use_tool" or "answer_direct".\n'
+            "\n"
+            "For questions needing MULTIPLE tools:\n"
+            '{"action": "use_tools", "steps": [\n'
+            '  {"tool": "fake_weather", "args": {"location": "Tokyo"}},\n'
+            '  {"tool": "get_time", "args": {}}\n'
+            ']}\n'
             "\n"
             "Rules:\n"
-            "- if the question is simple chit-chat, use action 'answer_direct.'\n"
-            "- if the user asks about current time, use tool 'get_time'.\n"
-            "- if the user asks for a random number, use tool 'random_number'.\n"
-            "- if the user asks about weather, use tool 'fake_weather' with args{\"location\":\"<city>\"}.\n"
+            "- If the question needs multiple pieces of information, use 'use_tools' with steps array\n"
+            "- If the question needs only one tool, use 'use_tool'\n"
+            "- If the question is simple chit-chat, use 'answer_direct'\n"
+            "- Analyze the user's question carefully to identify how many tools are needed\n"
         )
 
         # build messages with convo history
