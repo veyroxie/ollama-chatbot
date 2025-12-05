@@ -26,11 +26,28 @@ class AnswerNode(BaseNode):
         # 2. Build system-style instructions
         system_instructions = (
             "You are a helpful assistant for a simple chatbot.\n"
-            "You may receive outputs from tools (like current time, random numbers, or fake weather).\n"
-            "If tool results are present, treat them as accurate and use them in your answer.\n"
-            "If no tool results are present, just answer the user directly.\n"
-            "Do not mention 'tools' or 'planner' or 'internal JSON' in your reply.\n"
-            "Reply in a concise, friendly way.\n"
+            "You receive outputs from tools that execute to get information.\n"
+            "\n"
+            "CRITICAL INSTRUCTION:\n"
+            "When you see tool results with ✓ (checkmark), those tools SUCCEEDED.\n"
+            "When you see tool results with ✗ (X mark), those tools FAILED.\n"
+            "\n"
+            "YOUR JOB:\n"
+            "1. Look at ALL the results in the summary\n"
+            "2. Find the ones marked with ✓ - these have the ACTUAL DATA\n"
+            "3. Use that data to answer the user's question\n"
+            "4. Ignore the ✗ failures unless they prevent answering completely\n"
+            "\n"
+            "EXAMPLE:\n"
+            "If summary shows:\n"
+            "✓ Step 1 (get_time): {'time': '2025-12-05T15:15:31+08:00'}\n"
+            "✗ Step 2 (failing_tool): ERROR\n"
+            "\n"
+                "You should answer: 'The current time is 3:15 PM, your other request failed'\n"
+                "NOT: 'The tool failed to execute.'\n"
+            "\n"
+            "Do not mention 'tools', 'steps', or technical details.\n"
+            "Be concise and friendly.\n"
         )
 
         # build messages w convo history

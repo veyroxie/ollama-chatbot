@@ -3,10 +3,10 @@ from .base_node import BaseNode
 from chatbot.utils.call_llm import call_llm
 
 AVAILABLE_TOOLS = {
-    "get_time": "Returns the current system time. No parameters needed",
-    "random_number": "Returns a random integer between 1 and 100. no input parameters.",
-    "fake_weather": "Returns a fake weather report for a given location. no input parameters",
-    "failing_tool": "A tool that always fails to demonstrate error handling, no input parameters."
+    "get_time": "Returns the current system time.  Parameters: NONE (use empty args: {})",
+    "random_number": "Returns a random integer between 1 and 100.  Parameters: NONE (use empty args: {})",
+    "fake_weather": "Returns a fake weather report for a given location.  Parameters: NONE (use empty args: {})",
+    "failing_tool": "A tool that always fails to demonstrate error handling,  Parameters: NONE (use empty args: {})"
 }
 
 

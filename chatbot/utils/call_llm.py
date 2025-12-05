@@ -30,7 +30,37 @@ def call_llm(prompt: str=None, messages: list=None) -> str:
     except Exception as e:
         return format_ollama_error(e)
 
+def call_llm_stream(prompt: str=None, messages: list=None):
+    # if messages provided directly, use.
+    if messages is not None:
+        final_messages = messages
 
+    # otherwise convert prompt to message
+    elif prompt is not None:
+        final_messages = [{
+            "role": "user",
+            "content": prompt
+        }]
+    else:
+        raise ValueError("Either prompt or messages must be provided to call_llm.")
+    
+    payload = {"model": DEFAULT_MODEL, "messages": final_messages, "stream": True}
+
+    try:
+        response = requests.post(OLLAMA_URL, json=payload, timeout=60, stream=True) 
+        response.raise_for_status()
+        
+        # iterate through response lines
+        for line in response.iter_lines():
+            if line:
+                chunk_data = json.loads(line)
+                #extract content from chunk
+                if "message" in chunk_data and "content" in chunk_data["message"]:
+                    yield chunk_data["message"]["content"]
+
+    except Exception as e:
+        yield format_ollama_error(e)
+                
     
 
 
