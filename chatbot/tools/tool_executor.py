@@ -1,6 +1,7 @@
 import inspect
 from typing import Callable, Any, Dict, List
 from functools import wraps
+from chatbot.utils.error_handler import RetryConfig, logger, retry_with_backoff
 
 
 class Tool:
@@ -72,9 +73,38 @@ class Tool:
 
     def execute(self, **kwargs) -> Any:
         """
-        Call the tool function with given args.
+        Execute the tool function with provided kwargs and retry on failure.
 
         Validates required parameters before execution.
+        Automatically retries on temporary failures.
 
         """
-        return self.function(**kwargs)
+        # validate required params
+        for param_name, param_info in self.parameters.items():
+            if param_info["required"] and param_name not in kwargs:
+                raise ValueError(f"Missing required parameter: {param_name}")
+            
+        # create retry config
+        config = RetryConfig(
+            max_attempts=3,
+            initial_delay=0.5,
+            backoff_factor=2.0,
+            retry_exceptions=(ConnectionError, TimeoutError)
+        )
+
+        # execute w retry logic
+        try:
+            def execute_func():
+                return self.function(**kwargs)
+            
+            result = retry_with_backoff(
+                execute_func,
+                config=config,
+                tool_name=self.name
+            )
+            return result
+        
+        except Exception as e:
+            # log error and re-raise with friendly message
+            logger.error(f"Tool '{self.name}' execution failed after all retry attempts: {e}")
+            raise RuntimeError(f"Tool '{self.name}' execution failed: {str(e)}") from e
