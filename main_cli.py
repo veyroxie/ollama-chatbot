@@ -44,13 +44,18 @@ def main():
 
         # Answer generation phase
         final_reply = answerer.process(user_message, tool_output, conversation_history)
-        print("Bot:", final_reply)
+        print("Bot:", end = "", flush = True)
+        full_response = ""
+        for chunk in final_reply:
+            print(chunk, end="", flush=True)
+            full_response += chunk
+        print()  # for newline after streaming
         print("-" * 40)
 
         # Add bot response to conversation history
         conversation_history.append({
             "role": "assistant",
-            "content": final_reply
+            "content": full_response
         })
     
 

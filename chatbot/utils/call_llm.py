@@ -1,5 +1,6 @@
 import requests
 from .ollama_errors import format_ollama_error
+import json
 
 OLLAMA_URL= "http://localhost:11434/api/chat"
 DEFAULT_MODEL = "gemma3:1b"
@@ -45,10 +46,14 @@ def call_llm_stream(prompt: str=None, messages: list=None):
         raise ValueError("Either prompt or messages must be provided to call_llm.")
     
     payload = {"model": DEFAULT_MODEL, "messages": final_messages, "stream": True}
-
     try:
         response = requests.post(OLLAMA_URL, json=payload, timeout=60, stream=True) 
-        response.raise_for_status()
+        
+        # Check for errors before processing
+        if response.status_code != 200:
+            error_text = response.text
+            yield f"Error: {error_text}"
+            return
         
         # iterate through response lines
         for line in response.iter_lines():
@@ -60,7 +65,7 @@ def call_llm_stream(prompt: str=None, messages: list=None):
 
     except Exception as e:
         yield format_ollama_error(e)
-                
+                    
     
 
 

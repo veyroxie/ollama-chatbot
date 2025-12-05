@@ -1,6 +1,6 @@
 import json
 from .base_node import BaseNode
-from chatbot.utils.call_llm import call_llm
+from chatbot.utils.call_llm import call_llm_stream
 
 
 class AnswerNode(BaseNode):
@@ -73,5 +73,5 @@ class AnswerNode(BaseNode):
             })
 
         # 3. Call the LLM to compose the answer
-        answer = call_llm(messages=messages)
-        return answer.strip()
+        for chunk in call_llm_stream(messages=messages):
+            yield chunk
