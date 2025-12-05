@@ -13,3 +13,8 @@ def fake_weather(location: str):
         "forecast": "Sunny with light wind",
         "temperature_c": 24,
     }
+
+
+def failing_tool():
+    """ A tool that always fails to demonstrate error handling """
+    raise ValueError("Simulated tool failure.")

@@ -89,7 +89,7 @@ class ChainExecutorNode(BaseNode):
                 has_errors = True
                 result = {
                     "error": str(e),
-                    "tool": step.get}
+                    "tool": step.get("tool")}
 
 
             all_results.append(result)
@@ -98,11 +98,11 @@ class ChainExecutorNode(BaseNode):
             if "result" in result:
                 success_count += 1
                 summary_parts.append(
-                    f"Step {i+1} ({step.get('tool')}): {result['result']} successfully executed."
+                    f"✓ Step {i+1} ({step.get('tool')}): {result['result']} successfully executed."
                 )
             elif "error" in result:
                 summary_parts.append(
-                    f"Step {i+1} ({step.get('tool')}): ERROR - {result['error']} unable to execute."
+                    f"✗ Step {i+1} ({step.get('tool')}): ERROR - {result['error']} unable to execute."
                 )
         
         return {

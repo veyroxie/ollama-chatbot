@@ -1,10 +1,11 @@
 from .base_node import BaseNode
-from chatbot.tools.simple_tools import get_time, random_number, fake_weather
+from chatbot.tools.simple_tools import get_time, random_number, fake_weather, failing_tool
 
 TOOL_MAP = {
     "get_time": get_time,
     "random_number": random_number,
     "fake_weather": fake_weather,
+    "failing_tool": failing_tool
 }
 
 class ToolRunnerNode(BaseNode):
