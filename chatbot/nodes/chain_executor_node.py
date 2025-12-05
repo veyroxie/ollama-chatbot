@@ -108,7 +108,7 @@ class ChainExecutorNode(BaseNode):
         return {
             "results": all_results,
             "summary": "\n".join(summary_parts),
-            "successful_steps": success_count + f"/ {len(steps)}",
+            "successful_steps": f"{success_count} / {len(steps)}",
             "has_errors": has_errors
         }
         

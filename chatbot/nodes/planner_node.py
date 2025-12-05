@@ -3,9 +3,10 @@ from .base_node import BaseNode
 from chatbot.utils.call_llm import call_llm
 
 AVAILABLE_TOOLS = {
-    "get_time": "Returns the current system time.",
-    "random_number": "Returns a random integer between 1 and 100.",
-    "fake_weather": "Returns a fake weather report for a given location."
+    "get_time": "Returns the current system time. No parameters needed",
+    "random_number": "Returns a random integer between 1 and 100. no input parameters.",
+    "fake_weather": "Returns a fake weather report for a given location. no input parameters",
+    "failing_tool": "A tool that always fails to demonstrate error handling, no input parameters."
 }
 
 
@@ -48,7 +49,9 @@ class PlannerNode(BaseNode):
             "For questions needing MULTIPLE tools:\n"
             '{"action": "use_tools", "steps": [\n'
             '  {"tool": "fake_weather", "args": {"location": "Tokyo"}},\n'
-            '  {"tool": "get_time", "args": {}}\n'
+            '  {"tool": "get_time", "args": {}},\n'
+            '  {"tool": "random_number", "args": {}}, \n'
+            '  {"tool": "failing_tool", "args": {}} \n'
             ']}\n'
             "\n"
             "Rules:\n"
@@ -110,6 +113,13 @@ class PlannerNode(BaseNode):
                 plan["action"] = "use_tool"
                 plan["tool"] = tool_name
                 plan.setdefault("args", {})
+
+            elif action == "use_tools":
+                steps = plan.get("steps")
+                if not steps or not isinstance(steps, list):
+                    raise ValueError("Invalid or missing 'steps' in planner response.")
+                plan["action"] = "use_tools"
+                plan["steps"] = steps
 
             else:
                 tool_name = action
