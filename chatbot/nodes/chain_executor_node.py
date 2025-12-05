@@ -71,34 +71,47 @@ class ChainExecutorNode(BaseNode):
             {"results": [...], "summary": "..."}
         """
         all_results = []
+        success_count = 0
+        has_errors = False
         summary_parts = []
         
         for i, step in enumerate(steps):
             print(f"[ChainExecutor] Executing step {i+1}/{len(steps)}: {step.get('tool')}")
             
             # Execute this step
-            result = self.tool_runner.process({
-                "action": "use_tool",
-                "tool": step.get("tool"),
-                "args": step.get("args", {})
-            })
-            
+            try:
+                result = self.tool_runner.process({
+                    "action": "use_tool",
+                    "tool": step.get("tool"),
+                    "args": step.get("args", {})
+                })
+            except Exception as e:
+                has_errors = True
+                result = {
+                    "error": str(e),
+                    "tool": step.get}
+
+
             all_results.append(result)
             
             # Format result for summary
             if "result" in result:
+                success_count += 1
                 summary_parts.append(
-                    f"Step {i+1} ({step.get('tool')}): {result['result']}"
+                    f"Step {i+1} ({step.get('tool')}): {result['result']} successfully executed."
                 )
             elif "error" in result:
                 summary_parts.append(
-                    f"Step {i+1} ({step.get('tool')}): ERROR - {result['error']}"
+                    f"Step {i+1} ({step.get('tool')}): ERROR - {result['error']} unable to execute."
                 )
         
         return {
             "results": all_results,
-            "summary": "\n".join(summary_parts)
+            "summary": "\n".join(summary_parts),
+            "successful_steps": success_count + f"/ {len(steps)}",
+            "has_errors": has_errors
         }
+        
     
     def _format_single_result(self, plan: Dict, result: Dict) -> str:
         """Format a single tool result as a summary string."""
